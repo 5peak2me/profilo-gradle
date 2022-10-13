@@ -1,0 +1,230 @@
+load("//tools/build_defs/android:fb_core_android_library.bzl", "fb_core_android_library")
+load("//tools/build_defs/oss:profilo_defs.bzl", "profilo_path")
+
+CONSTANTS = [
+    "Identifiers.java",
+    "ProfiloConstants.java",
+]
+
+UTIL = [
+    "TraceIdSanitizer.java",
+]
+
+EVENTS = [
+    "TraceEvents.java",
+]
+
+CONTROL = [
+    "ControllerWithQPLChecks.java",
+    "TraceControl.java",
+    "TraceController.java",
+    "TraceControlHandler.java",
+    "TraceControlThreadHolder.java",
+    "TraceConditionManager.java",
+    "DurationCondition.java",
+    "TraceCondition.java",
+    "AnnotationCondition.java",
+]
+
+REGISTRY = [
+    "GenericRegistry.java",
+    "ProvidersRegistry.java",
+    "TriggerRegistry.java",
+]
+
+LISTENER = [
+    "DefaultTraceOrchestratorListener.java",
+    "TraceOrchestratorListener.java",
+]
+
+TRACE_WRITER_LISTENER = [
+    "TraceWriterListener.java",
+]
+
+UPLOAD = [
+    "BackgroundUploadService.java",
+]
+
+fb_core_android_library(
+    name = "registry",
+    srcs = REGISTRY,
+    labels = [],
+    visibility = [
+        "PUBLIC",
+    ],
+    deps = [
+        profilo_path("deps/jsr-305:jsr-305"),
+        profilo_path("deps/proguard:annotations"),
+    ],
+)
+
+fb_core_android_library(
+    name = "constants",
+    srcs = CONSTANTS,
+    labels = [],
+    visibility = [
+        "PUBLIC",
+    ],
+    deps = [
+        profilo_path("deps/fbtrace:utils"),
+        profilo_path("deps/jsr-305:jsr-305"),
+    ],
+)
+
+fb_core_android_library(
+    name = "util",
+    srcs = UTIL,
+    labels = [],
+    tests = [
+        "//fbandroid/libraries/profilo/java/test/com/facebook/profilo/core:core",
+    ],
+    visibility = [
+        "PUBLIC",
+    ],
+)
+
+fb_core_android_library(
+    name = "events",
+    srcs = EVENTS,
+    labels = [],
+    visibility = [
+        "//fbandroid/javatests/com/facebook/profilo/...",
+        profilo_path("..."),
+        "//fbandroid/perftests/benchmarks/java/com/facebook/benchmarks/profilo/...",
+    ],
+    deps = [
+        profilo_path("deps/jsr-305:jsr-305"),
+        profilo_path("deps/soloader:soloader"),
+    ],
+    exported_deps = [
+        ":constants",
+        ":registry",
+    ],
+)
+
+fb_core_android_library(
+    name = "control",
+    srcs = CONTROL,
+    labels = [],
+    required_for_source_only_abi = True,
+    visibility = [
+        profilo_path("..."),
+        "//fbandroid/javatests/com/facebook/cloudseeder:",
+        "//fbandroid/javatests/com/facebook/cloudseeder:cloudseeder",
+        "//fbandroid/javatests/com/facebook/debug/fps:",
+        "//fbandroid/javatests/com/facebook/stall:",
+        "//fbandroid/perftests/benchmarks/java/com/facebook/benchmarks/profilo/...",
+    ],
+    deps = [
+        ":constants",
+        ":listener",
+        ":registry",
+        ":util",
+        profilo_path("java/main/com/facebook/profilo/mmapbuf/core:core"),
+        profilo_path("java/main/com/facebook/profilo/writer:writer"),
+        profilo_path("deps/fbtrace:utils"),
+        profilo_path("deps/jsr-305:jsr-305"),
+    ],
+    exported_deps = [
+        ":constants",
+        profilo_path("aidl:aidl"),
+        profilo_path("java/main/com/facebook/profilo/config:config"),
+        profilo_path("java/main/com/facebook/profilo/logger:logger"),
+    ],
+)
+
+fb_core_android_library(
+    name = "listener",
+    srcs = LISTENER,
+    labels = [],
+    visibility = [
+        profilo_path("..."),
+    ],
+    deps = [
+        profilo_path("deps/jsr-305:jsr-305"),
+    ],
+    exported_deps = [
+        ":upload",
+        ":writer_listener",
+        profilo_path("aidl:aidl"),
+        profilo_path("java/main/com/facebook/profilo/config:config"),
+        profilo_path("java/main/com/facebook/profilo/logger:logger"),
+    ],
+)
+
+fb_core_android_library(
+    name = "writer_listener",
+    srcs = TRACE_WRITER_LISTENER,
+    labels = [],
+    visibility = [
+        profilo_path("..."),
+    ],
+    deps = [
+        profilo_path("deps/jsr-305:jsr-305"),
+    ],
+    exported_deps = [
+        profilo_path("aidl:aidl"),
+    ],
+)
+
+fb_core_android_library(
+    name = "upload",
+    srcs = UPLOAD,
+    labels = [],
+    visibility = [
+        profilo_path("..."),
+    ],
+    deps = [
+        profilo_path("deps/jsr-305:jsr-305"),
+    ],
+    exported_deps = [
+        profilo_path("java/main/com/facebook/profilo/config:config"),
+    ],
+)
+
+fb_core_android_library(
+    name = "core",
+    srcs = glob(
+        ["*.java"],
+        exclude = CONSTANTS + UTIL + EVENTS + CONTROL + REGISTRY + LISTENER + TRACE_WRITER_LISTENER + UPLOAD,
+    ),
+    labels = [],
+    tests = [
+        profilo_path("java/test/com/facebook/profilo/core:core"),
+    ],
+    visibility = [
+        "//fbandroid/java/com/facebook/cloudseeder:cloudseeder",
+        "//fbandroid/java/com/facebook/common/fury/fb4a:util",
+        "//fbandroid/java/com/facebook/common/fury/instagram:util",
+        "//fbandroid/java/com/facebook/fab/dumper/plugins:plugins",
+        "//fbandroid/java/com/facebook/katana/activity:activity",
+        "//fbandroid/java/com/facebook/katana/app:app",
+        "//fbandroid/java/com/facebook/messenger:messenger",
+        "//fbandroid/java/com/facebook/tools/dextr/...",
+        "//fbandroid/java/com/facebook/video/profiler/systrace:systrace",
+        "//fbandroid/java/com/instagram/android/...",
+        "//fbandroid/javatests/com/facebook/cloudseeder:",
+        "//fbandroid/javatests/com/facebook/cloudseeder:cloudseeder",
+        "//fbandroid/javatests/com/facebook/tools/dextr/...",
+        profilo_path("..."),
+    ],
+    deps = [
+        profilo_path("deps/jsr-305:jsr-305"),
+        profilo_path("deps/soloader:soloader"),
+        profilo_path("deps/zip:zip"),
+        profilo_path("java/main/com/facebook/profilo/writer:writer"),
+    ],
+    exported_deps = [
+        ":constants",
+        ":control",
+        ":events",
+        ":listener",
+        ":registry",
+        ":upload",
+        ":util",
+        ":writer_listener",
+        profilo_path("java/main/com/facebook/profilo/config:config"),
+        profilo_path("java/main/com/facebook/profilo/logger:logger"),
+        profilo_path("java/main/com/facebook/profilo/mmapbuf/core:core"),
+    ],
+)

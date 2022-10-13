@@ -1,0 +1,34 @@
+load("//tools/build_defs/android:fb_core_android_library.bzl", "fb_core_android_library")
+load("//tools/build_defs/oss:profilo_defs.bzl", "profilo_path")
+
+fb_core_android_library(
+    name = "logger",
+    srcs = glob(["*.java"]),
+    labels = [],
+    tests = [
+        profilo_path("java/test/com/facebook/profilo/logger:logger"),
+    ],
+    visibility = [
+        "//fbandroid/java/com/facebook/quicklog/...",
+        "//fbandroid/java/com/facebook/tools/dextr/...",
+        "//fbandroid/javatests/com/facebook/tools/dextr/...",
+        profilo_path("..."),
+        "//fbandroid/perftests/benchmarks/...",
+    ],
+    deps = [
+        profilo_path("cpp:profilo"),
+        profilo_path("deps/buildconstants:buildconstants"),
+        profilo_path("deps/fbtrace:utils"),
+        profilo_path("deps/jsr-305:jsr-305"),
+        profilo_path("deps/proguard:annotations"),
+        profilo_path("deps/soloader:soloader"),
+        profilo_path("java/main/com/facebook/profilo/core:constants"),
+        profilo_path("java/main/com/facebook/profilo/core:events"),
+        profilo_path("java/main/com/facebook/profilo/writer:writer"),
+    ],
+    exported_deps = [
+        profilo_path("cpp/generated:java"),
+        profilo_path("deps/fbjni:fbjni-java"),
+        profilo_path("java/main/com/facebook/profilo/mmapbuf/core:core"),
+    ],
+)
