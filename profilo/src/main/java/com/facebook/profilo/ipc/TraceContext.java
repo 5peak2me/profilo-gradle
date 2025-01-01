@@ -47,8 +47,8 @@ public final class TraceContext implements Parcelable {
   public Buffer[] buffers;
   @Nullable public volatile LoggerWorkerThread workerThread;
 
-  public static final Creator<TraceContext> CREATOR =
-      new Creator<TraceContext>() {
+  public static final Parcelable.Creator<TraceContext> CREATOR =
+      new Parcelable.Creator<TraceContext>() {
         public TraceContext createFromParcel(Parcel in) {
           return new TraceContext(in);
         }
